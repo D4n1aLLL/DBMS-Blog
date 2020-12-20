@@ -1,0 +1,35 @@
+﻿@using Blog.Models
+
+@model Blog.Models.LikeModel
+
+@if (Session["UserID"] != null)
+{
+    LikeModel like = new LikeModel();
+    {
+        like = @post.Likes.SingleOrDefault(x => x.UserID == Convert.ToInt32(Session["UserID"].ToString()));
+    }
+    if (showComments)
+    {
+        if (like != null)
+        {
+
+            <a class="btn btn-info" href="@Href("~/Posts/Like?id="+post.ID+"&pageNumber="+ -1)"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
+        }
+        else
+        {
+            <a class="btn btn-default" href="@Href("~/Posts/Like?id=" + post.ID + "&pageNumber=" + -1)"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
+        }
+    }
+    else
+    {
+        if (like != null)
+        {
+
+            <a class="btn btn-info" href="@Href("~/Posts/Like?id="+post.ID+"&pageNumber="+ PageNumber)"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
+        }
+        else
+        {
+            <a class="btn btn-default" href="@Href("~/Posts/Like?id=" + post.ID + "&pageNumber=" + PageNumber)"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
+        }
+    }
+}

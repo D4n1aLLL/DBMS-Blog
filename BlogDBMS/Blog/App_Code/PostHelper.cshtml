@@ -1,0 +1,135 @@
+﻿@using System.Linq
+@using System.Web.Mvc.Ajax
+@using System.Web.Mvc
+@using System.Web.Optimization
+@using Blog.Models;
+@Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+@helper Render(PostModel post, System.Web.Mvc.HtmlHelper html, bool isAdmin, bool showComments, int? PageNumber)
+{
+    <div class="postTitle">
+        <a href="@Href("~/Posts/Details/"+post.ID)">@post.Title</a>
+    </div>
+    <div class="postContainer">
+        <div class="postTabs">
+            <div class="dateTab">
+                <span class="month">@post.DateTime.ToString("MMMM").ToUpper() </span>
+                <span class="day">@post.DateTime.ToString("dd"), </span>
+                <span class="year">@post.DateTime.ToString("yyyy")</span>
+            </div>
+        </div>
+        <div class="postContent">
+            <div class="postBody">@html.Raw(post.Body)</div>
+            <div class="commentsTab">
+                @if(post.Comments != null)
+                { 
+                    if (post.Comments.Count > 1 || post.Comments.Count==0)
+                    {
+                        <a href="@Href("~/Posts/Details/" + post.ID + "#comments")">@post.Comments.Count comments</a>
+                    }
+                    else if (post.Comments.Count == 1)
+                    {
+                        <a href="@Href("~/Posts/Details/" + post.ID + "#comments")">@post.Comments.Count comment</a>
+                    }
+                    if (post.Likes.Count > 1 || post.Likes.Count==0)
+                    {
+                        <span style="color: #6b706f;font-weight: bold;"> &amp; @post.Likes.Count Likes</span>
+                    }
+                    else if (post.Likes.Count == 1)
+                    {
+                        <span style="color: #6b706f;font-weight: bold;"> &amp; @post.Likes.Count Like</span>
+                    }
+                }
+            </div>
+            <div class="tagList">
+                @if(post.Tags != null) { 
+                    <span class="tagTitle">Tags: </span>
+                    foreach (TagModel tag in post.Tags)
+                    {
+                        <span class="tag"><a href="@Href("~/Posts/Tags/" + tag.Name)">#@tag.Name</a></span>
+                    }
+                }
+            </div>
+            <div class="likes" id="Likes">
+                @if (Session["UserID"] != null)
+                {
+                    LikeModel like = new LikeModel();
+                    {
+                        like = @post.Likes.SingleOrDefault(x => x.UserID == Convert.ToInt32(Session["UserID"].ToString()));
+                    }
+                    if (showComments)
+                    {
+                        if (like != null)
+                        {
+
+                            <a class="btn btn-info" href="@Href("~/Posts/Like?id="+post.ID+"&pageNumber="+ -1)"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-default" href="@Href("~/Posts/Like?id=" + post.ID + "&pageNumber=" + -1)"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
+                        }
+                    }
+                    else
+                    {
+                        if (like != null)
+                        {
+
+                            <a class="btn btn-info" href="@Href("~/Posts/Like?id="+post.ID+"&pageNumber="+ PageNumber)"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-default" href="@Href("~/Posts/Like?id=" + post.ID + "&pageNumber=" + PageNumber)"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        @if(isAdmin)
+        {
+            <div class="postControlPanel">
+                <a class="btn btn-danger" href="@Href("~/Posts/Delete/"+post.ID)">Delete</a>
+                <a class="btn btn-danger" href="@Href("~/Posts/Edit/"+post.ID)">Edit</a>
+            </div>
+        }
+
+    </div>
+if (showComments)
+{
+        <div id="commentContainer">
+            <a id="comments"></a>
+            @foreach (CommentModel comment in post.Comments.OrderBy(x => x.DateTime).ToList())
+            {
+                <div class="comment">
+                    <div class="commentName">
+                        @if (!string.IsNullOrWhiteSpace(comment.Email))
+                        {
+                            <a href="mailto:@comment.Email">@comment.Name</a>
+                        }
+                        else
+                        {
+                            @comment.Name
+                        }
+                    </div>
+                    said:
+                    <div class="commentBody">@html.Raw(@html.Encode(comment.Body).Replace("\n", "<br/>"))</div>
+                    <div class="commentTime">at @comment.DateTime.ToString("HH:mm") on @comment.DateTime.ToString("yyyy/MM/dd")</div>
+                    @if(isAdmin)
+                    {
+                        <div class="commentControlPanel">
+                            <a href="@Href("~/Posts/DeleteComment/"+comment.ID)">Delete</a>
+                        </div>
+                    }
+                </div>
+            }
+            <div id="commentEditor">
+                <div id="commentPrompt">Leave a comment!</div>
+                <form action="@Href("~/Posts/Comment/" + post.ID)" method="post">
+                    <input type="text" id="commentNamePrompt" name="name" />Name (Required)<br />
+                    <input type="text" id="commentEmailPrompt" name="email" />Email (Required)<br />
+                    <textarea id="commentBodyInput" name="body" rows="10" cols="60"></textarea><br />
+                    <input type="submit" id="commentSubmitInput" name="submit" value="Submit!" />
+                </form>
+            </div>
+            </div>
+}
+}

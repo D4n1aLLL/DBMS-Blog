@@ -1,0 +1,12 @@
+﻿@model Blog.Models.PostModel
+
+@{
+    ViewBag.Title = "Details";
+    bool isAdmin = ViewBag.IsAdmin ?? false;
+}
+
+@PostHelper.Render(Model,Html,isAdmin,true,-1)
+@section scripts
+{
+    <script src="~/Scripts/Like.js"></script>
+}

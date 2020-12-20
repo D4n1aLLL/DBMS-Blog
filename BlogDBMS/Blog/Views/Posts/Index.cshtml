@@ -1,0 +1,36 @@
+﻿@using Blog.Models;
+@model IEnumerable<PostModel>
+@{
+    ViewBag.Title = "Index";
+    bool isPreviousLinkVisible = ViewBag.IsPreviousLinkVisible ?? false;
+    bool isNextLinkVisible = ViewBag.IsNextLinkVisible ?? false;
+    bool isAdmin = ViewBag.IsAdmin ?? false;
+}
+@if (TempData["Success"] != null)
+{
+    <p class="alert alert-success" id="successMessage">@TempData["Success"]</p>
+            
+}
+@foreach(PostModel post in Model )
+{
+    @PostHelper.Render(post,Html,isAdmin,false,ViewBag.PageNumber)
+}
+
+@Ajax.ActionLink("Like","Like", new AjaxOptions() { HttpMethod = "POST",UpdateTargetId = "Likes", InsertionMode = InsertionMode.Replace})
+<center>
+    <p>
+        @if (isPreviousLinkVisible)
+        {
+            <a id="previousLink" href="@Href("~/Posts/Index/"+ (ViewBag.PageNumber-1))"><< Back </a>
+        }
+        <b>&nbsp;&nbsp;<u>@(ViewBag.PageNumber + 1)</u>&nbsp;&nbsp;</b>
+        @if (isNextLinkVisible)
+        {
+            <a id="previousLink" href="@Href("~/Posts/Index/"+ (ViewBag.PageNumber+1))"> Next >></a>
+        }
+    </p>
+</center>
+@section scripts
+{
+    <script src="~/Scripts/Like.js" type="text/javascript"></script>
+}
